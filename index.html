@@ -75,11 +75,20 @@
                 <label for="pixel_range" class="text-base text-white">Pixel range:</label> 
                 <input name="pixel_range" style="float:right; width:75%;" type="text" value='[0, 500]' />
                 <br><br>
-                
-                <input type="file" webkitdirectory mozdirectory />
 
-                <input type="submit" value="Submit" style="width:50%; float:right;">
+                <input type="submit" value="Submit User Configurations" style="width:50%; float:right;">
             </form>
+
+            <form name="uploadForm" method="post" enctype="multipart/form-data">
+                <div>
+                  <label for="fileupload">Choose file(s) to upload</label>
+                  <input type="file" name = "fileupload" id="fileupload" multiple />
+                </div>
+                <div>
+                  <button>Submit file(s)</button>
+                </div>
+              </form>
+
             <div name="response"></div>
         </div>
     </section>
