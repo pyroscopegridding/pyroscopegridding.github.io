@@ -1,1 +1,88 @@
-Hello World
+<!DOCTYPE html>
+<html>
+  <head>
+        <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+        
+  </head>
+  <body>
+    <section class="bg-black ">
+        <div class="container px-5 py-12 mx-auto lg:px-20">
+            <div class="flex flex-col flex-wrap pb-6 mb-12 text-white ">
+                <h1 class="mb-12 text-3xl font-medium text-white">
+                    PYROSCOPEgridding
+                </h1>
+                    <p class="text-base leading-relaxed">
+                        User specifications for netcdf output
+                    </p>
+            </div>
+            <form name="myForm" method="POST">
+                <h2 class="mb-8 text-2xl font-medium text-white">
+                    Grid Settings 
+                </h2>
+
+                <label for="gridsize" class="text-base text-white">Gridsize:</label> 
+                <input name="gridsize" style="float:right; width:75%;" type="number" value="0.25" />
+                <br><br>
+                
+                
+                <label for="limit" class="text-base text-white">Limit:</label> 
+                <input name="limit" style="float:right; width:75%;" type="text" value="[-89.875, 89.875, -179.875, 179.875]"/>
+                <br><br>
+             
+                
+                <label for="fill_value" class="text-base text-white">Fill Value:</label> 
+                <input name="fill_value" style="float:right; width:75%;" type="number" value=-9999 />
+                <br><br>
+ 
+                <label for="time_interval" class="text-base text-white">Time Interval(min):</label> 
+                <input name="time_interval" style="float:right; width:75%;" type="number" value=30 />
+                <br><br>
+
+                <label for="start_date" class="text-base text-white">Start Date:</label> 
+                <input name="start_date" style="width:33%;" type="text" value="01-01-2020"/>
+                
+                <input name="start_time" style="float:right;width:33%;" type="text" value="00:00"/>
+                <label for="start_time" style="float:right;" class="text-base text-white">Start Time:</label> 
+                <br><br>
+
+                <label for="end_date" class="text-base text-white">End Date:</label> 
+                <input name="end_date" style="width:33%;" type="text" value="01-01-2020"/>
+                
+                <input name="end_time" style="float:right;width:33%;" type="text" value="00:59"/>
+                <label for="end_time" style="float:right;" class="text-base text-white">End Time:</label> 
+                <br><br>
+
+                <h2 class="mb-8 text-2xl font-medium text-white">
+                    Variables
+                </h2>
+
+                <label for="geo_var" class="text-base text-white">Geolocation variables:</label> 
+                <input name="geo_var" style="float:right; width:75%;" type="text" value='["latitude", "longitude"]' />
+                <br><br>
+
+                <label for="phy_var" class="text-base text-white">Geophysical variables:</label> 
+                <input name="phy_var" style="float:right; width:75%;" type="text" value='["Sensor_Zenith", "Scattering_Angle", "Image_Optical_Depth_Land_And_Ocean", "Optical_Depth_Land_And_Ocean"]' />
+                <br><br>
+
+                <label for="phy_var_nc" class="text-base text-white">Geolocation variables (nc naming):</label> 
+                <input name="phy_var_nc" style="float:right; width:70%; " type="text" value='["sensor_zenith_angle", "Scattering_Angle", "Image_Optical_Depth_Land_And_Ocean", "Optical_Depth_Land_And_Ocean"]' />
+                <br><br>
+
+                <label for="phy_var_hdf" class="text-base text-white">Geophysical variables (hdf naming):</label> 
+                <input name="phy_var_hdf" style="float:right; width:70%; " type="text" value='["Sensor_Zenith", "Scattering_Angle", "Image_Optical_Depth_Land_And_Ocean","Optical_Depth_Land_And_Ocean"]' />
+                <br><br>
+
+                <label for="pixel_range" class="text-base text-white">Pixel range:</label> 
+                <input name="pixel_range" style="float:right; width:75%;" type="text" value='[0, 500]' />
+                <br><br>
+                
+                <input type="file" webkitdirectory mozdirectory />
+
+                <input type="submit" value="Submit" style="width:50%; float:right;">
+            </form>
+            <div name="response"></div>
+        </div>
+    </section>
+    
+  </body>
+</html>
