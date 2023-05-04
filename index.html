@@ -2,7 +2,23 @@
 <html>
   <head>
         <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
-        
+        <script>
+            document.addEventListener("DOMContentLoaded", (event) => {
+              document.getElementById("myForm").addEventListener("submit", function (e) {
+                e.preventDefault(); // Cancel the default action, do not refresh (clears memory)
+                submitUserForm();
+              });
+            });
+        </script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", (event) => {
+              document.getElementById("uploadForm").addEventListener("submit", function (e) {
+                e.preventDefault(); // Cancel the default action, do not refresh (clears memory)
+                submitUploadForm();
+              });
+            });
+        </script>
   </head>
   <body>
     <section class="bg-black ">
@@ -15,7 +31,7 @@
                         User specifications for netcdf output
                     </p>
             </div>
-            <form name="myForm" method="POST" action="/config">
+            <form name="myForm" id="myForm" >
                 <h2 class="mb-8 text-2xl font-medium text-white">
                     Grid Settings 
                 </h2>
@@ -78,15 +94,54 @@
 
                 <input type="submit" value="Submit User Configurations" style="width:50%; float:right;">
             </form>
+            <script>         
+                function submitUserForm() {
+                   var formElement = document.getElementById('myForm');
+                   var data = new FormData(formElement);
+                   console.log(data);
 
-            <form name="uploadForm" action="/file" method="POST" enctype="multipart/form-data">
+                   fetch('/config', {
+                           method: 'POST',
+                           body: data,
+                       })
+                       .then(response => response.text())
+                       .then(data => {
+                           document.getElementById("myForm").innerHTML = data;
+                       })
+                       .catch(error => {
+                           console.error(error);
+                       });
+                }
+             </script>
 
-                <label for="file">Choose file(s) to upload</label>
+            <form name = "uploadForm" id="uploadForm" enctype="multipart/form-data" >
+
+                <label for="file" class="text-base text-white">Choose file(s) to upload</label>
                 <input type="file" name = "file"  multiple />
                 <br><br>
                 
-                <input type="submit" value="Submit Files" style="width:50%; float:right;">
-              </form>
+                <input type="button" value="Submit Files" style="width:50%; float:right;" onclick = "submitUploadForm()">
+            </form>
+
+            <script>         
+                function submitUploadForm() {
+                   var formElement = document.getElementById('uploadForm');
+                   var data = new FormData(formElement);
+                   console.log(data);
+
+                   fetch('/file', {
+                           method: 'POST',
+                           body: data,
+                       })
+                       .then(response => response.text())
+                       .then(data => {
+                           document.getElementById("uploadForm").innerHTML = data;
+                       })
+                       .catch(error => {
+                           console.error(error);
+                       });
+                }
+             </script>
 
             <div name="response"></div>
         </div>
