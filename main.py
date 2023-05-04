@@ -1,7 +1,7 @@
-from fastapi import FastAPI, APIRouter, Form, Query, HTTPException, Request
+from fastapi import FastAPI, APIRouter, Form, Query, HTTPException, Request, File, UploadFile
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from typing import Optional, Any
+from typing import Optional, Any, List
 from pathlib import Path
 
 # custom
@@ -18,7 +18,10 @@ TEMPLATES = Jinja2Templates(directory=str(BASE_PATH))
 app = FastAPI() #(title="Recipe API", openapi_url="/openapi.json")
 api_router = APIRouter()
 
+
+#saved data
 user_config = None
+filenames = None
 
 @api_router.get("/", status_code=200)
 def root(request: Request) -> dict:
@@ -31,7 +34,8 @@ def root(request: Request) -> dict:
         #{"request": request, "gridsettings": gridsettings, "geo_variables": geo_variables},
     )
 
-@app.post("/")
+# get user request information
+@app.post("/config")
 async def submit(request: Request,
                  gridsize: float = Form(...),
                  limit: str = Form(...),
@@ -73,6 +77,20 @@ async def submit(request: Request,
         "index.html",
         {"request": request}
     )
+
+#file upload
+@app.post("/file")
+async def submit_file(request: Request,
+                      #file: UploadFile = File(...)):
+                      file: List[UploadFile]):
+    
+    filenames = [f.filename for f in file]
+    
+    return TEMPLATES.TemplateResponse(
+        "index.html",
+        {"request": request}
+    )
+    #return {"filename": file.filename}
 
 
 app.include_router(api_router)

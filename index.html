@@ -15,7 +15,7 @@
                         User specifications for netcdf output
                     </p>
             </div>
-            <form name="myForm" method="POST">
+            <form name="myForm" method="POST" action="/config">
                 <h2 class="mb-8 text-2xl font-medium text-white">
                     Grid Settings 
                 </h2>
@@ -79,14 +79,13 @@
                 <input type="submit" value="Submit User Configurations" style="width:50%; float:right;">
             </form>
 
-            <form name="uploadForm" method="post" enctype="multipart/form-data">
-                <div>
-                  <label for="fileupload">Choose file(s) to upload</label>
-                  <input type="file" name = "fileupload" id="fileupload" multiple />
-                </div>
+            <form name="uploadForm" action="/file" method="POST" enctype="multipart/form-data">
+
+                <label for="file">Choose file(s) to upload</label>
+                <input type="file" name = "file"  multiple />
                 <br><br>
                 
-                <input type="submit" value="Submit User Configurations" style="width:50%; float:right;">
+                <input type="submit" value="Submit Files" style="width:50%; float:right;">
               </form>
 
             <div name="response"></div>
