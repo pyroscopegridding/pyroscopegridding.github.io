@@ -29,14 +29,7 @@
             });
         </script>
 
-        <script>
-            document.addEventListener("DOMContentLoaded", (event) => {
-              document.getElementById("downloadFileForm").addEventListener("submit", function (e) {
-                e.preventDefault(); // Cancel the default action, do not refresh (clears memory)
-                downloadFile();
-              });
-            });
-        </script>
+        
 
   </head>
   <body>
@@ -163,7 +156,7 @@
              </script>
 
              <br><br>
-             <form id="generateFileForm"></form>
+             <form id="generateFileForm">
                 <input type="button" value="Generate" style="width:100%; float:right;" onclick="generateFile()">
              </form>
 
@@ -188,8 +181,8 @@
              </script>
 
              <br><br>
-             <form id="downloadFileForm"></form>
-                <input type="button" value="Download" style="width:100%; float:right;" onclick="downloadFile()">
+             <form method="POST" action="/download" id="downloadFileForm" >
+                <input type="submit" value="Download2" style="width:100%; float:right;">
              </form>
 
              <script>         

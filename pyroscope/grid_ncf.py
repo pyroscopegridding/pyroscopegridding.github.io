@@ -27,11 +27,11 @@ import numpy as np
 import numpy.ma as ma
 import time
 
-import gridding
-import sat_data_input
-import filter_data
-import naming_conventions
-import solar_zenith
+import pyroscope.gridding as gridding
+import pyroscope.sat_data_input as sat_data_input
+import pyroscope.filter_data as filter_data
+import pyroscope.naming_conventions as naming_conventions
+import pyroscope.solar_zenith as solar_zenith
 import datetime
 
 # full satellite list 
@@ -222,7 +222,7 @@ def grid_nc_sensor_statistics_metadata(limit, gsize, geo_list, phy_list, filelis
     solar_zenith_variable.add_offset = float(0)
     #netCDF4.nc_put_att(ds, solar_zenith_variable, 'add_offset', 'f4', 1, 0)
     
-    solar_zenith_variable[0, :, :] = solar_zenith.get_SZA_parallelized(limit, gsize, time_start, time_diff)
+    #solar_zenith_variable[0, :, :] = solar_zenith.get_SZA_parallelized(limit, gsize, time_start, time_diff)
     #copy solar_zenith
     
     

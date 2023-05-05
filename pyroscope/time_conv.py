@@ -37,6 +37,7 @@ def sys_time():
 # returns datetime object
 def filename_time(filename):
     #print("FILENAME: ", filename)
+    filename = filename.replace("pyroscopegridding.github.io", "somethingwithoutperiods")
     time = filename.split(".")[1:3]
     date = datetime.datetime.strptime(time[0][3:], '%y%j')
     

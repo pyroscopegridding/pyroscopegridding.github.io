@@ -12,12 +12,12 @@ __status__ = "Production"
 
 #import other module files
 from concurrent.futures import process
-import sat_data_input
-import filter_data
-import gridding
-import grid_ncf
-import fileparser # comment for specific file functions
-import time_conv
+import pyroscope.sat_data_input as sat_data_input
+import pyroscope.filter_data as filter_data
+import pyroscope.gridding as gridding
+import pyroscope.grid_ncf as grid_ncf
+import pyroscope.fileparser as fileparser # comment for specific file functions
+import pyroscope.time_conv as time_conv
 
 import os
 import argparse

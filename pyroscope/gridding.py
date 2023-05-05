@@ -27,8 +27,8 @@ __status__ = "Production"
 
 import numpy as np
 import numpy.ma as ma
-import sat_data_input
-import filter_data
+import pyroscope.sat_data_input as sat_data_input
+import pyroscope.filter_data as filter_data
 
 
 # limit - [lat1,lat2,lon1,lon2]

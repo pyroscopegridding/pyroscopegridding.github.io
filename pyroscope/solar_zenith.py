@@ -12,14 +12,14 @@ __status__ = "Production"
 # Contains manual code calculations validated against pysolar
 #
 
-from pysolar.solar import get_altitude
+#from pysolar.solar import get_altitude
 import time
 import math
 
-from sunpy.coordinates import frames
+#from sunpy.coordinates import frames
 #from sunpy.time import Time
-from astropy.coordinates import EarthLocation
-from pvlib import solarposition
+#from astropy.coordinates import EarthLocation
+#from pvlib import solarposition
 import pytz
 
 
@@ -243,6 +243,6 @@ if __name__ == '__main__':
     theta = get_SZA(latitude, longitude, datetime_obj)
     print("Solar zenith angle (manual):", theta, "degrees")
     datetime_obj = datetime_obj.replace(tzinfo=datetime.timezone.utc)
-    print("Solar zenith angle (pysolar): ", 90 - get_altitude(latitude, longitude, datetime_obj))
+    #print("Solar zenith angle (pysolar): ", 90 - get_altitude(latitude, longitude, datetime_obj))
     
     

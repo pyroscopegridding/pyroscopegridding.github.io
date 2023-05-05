@@ -14,7 +14,7 @@ __status__ = "Production"
 # 2. units
 # 3. scale_factor
 
-import sat_data_input
+import pyroscope.sat_data_input as sat_data_input
 import numpy as np
 
 # nc
