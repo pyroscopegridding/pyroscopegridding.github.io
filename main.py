@@ -1,17 +1,21 @@
 from fastapi import FastAPI, APIRouter, Form, Query, HTTPException, Request, File, UploadFile
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 from typing import Optional, Any, List
 from pathlib import Path
+
+import os
+import netCDF4
+import shutil
 
 # custom
 from schemas import *
 #from user_settings import configuration, uploaded_files
 #from satellite_getter import *
 
-#from pyroscopegridding import grid_ncf
+from pyroscopegridding.time_conv import *
 
 BASE_PATH = Path(__file__).resolve().parent
 TEMPLATES = Jinja2Templates(directory=str(BASE_PATH))
@@ -20,7 +24,10 @@ TEMPLATES = Jinja2Templates(directory=str(BASE_PATH))
 app = FastAPI() #(title="Recipe API", openapi_url="/openapi.json")
 api_router = APIRouter()
 
-#app.mount("/", StaticFiles(directory="static",html = True), name="static")
+#pathing
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
+STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 #saved data
 configuration = {
@@ -36,27 +43,17 @@ configuration = {
     ,"phy_var_hdf": ["Sensor_Zenith", "Scattering_Angle", "Image_Optical_Depth_Land_And_Ocean","Optical_Depth_Land_And_Ocean"] # geophysical variables hdf
     ,"pixel_range": [0, 500] # Range for pixel count at single pixel
 }
-filenames = []
+#filenames = []
+filenames = ['AERDT_L2_ABI_G16.A2020001.0000.001.2022003073056.nc', 'AERDT_L2_ABI_G16.A2020001.0040.001.2022003074938.nc']
 uploaded_files = []
 
-"""
-@api_router.get("/", status_code=200)
-def root(request: Request) -> dict:
-    
-    #Root GET
-    
-    return TEMPLATES.TemplateResponse(
-        "index.html",
-        {"request": request}
-    )
-""" 
 @app.get("/")
 async def index(request: Request):
     return TEMPLATES.TemplateResponse("index.html", {"request": request})
 
 # get user request information
 @app.post("/config")
-async def submit(request: Request,
+async def submit_config(request: Request,
                  gridsize: float = Form(...),
                  limit: str = Form(...),
                  fill_value: float = Form(...),
@@ -74,40 +71,21 @@ async def submit(request: Request,
                  ):
     
     #time string edit
-    
-    #save into user configuration
-    user_config = {"gridsize": gridsize,
-            "limit": limit,
-            "fill_value": fill_value,
-            "time_interval": time_interval,
-            "start_date" : start_date,
-            "start_time" : start_time,
-            "end_date" : end_date,
-            "end_time" : end_time,
-            
-            
-            "geo_var": geo_var,
-            "phy_var": phy_var,
-            "phy_var_nc": phy_var_nc,
-            "phy_var_hdf": phy_var_hdf,
-            "pixel_range": pixel_range
-            }
+    time_start = start_date + "/" + start_time.replace(":", "/")
+    time_end = end_date + "/" + end_time.replace(":", "/")
     
     #save into configuration
-    configuration["gridsize"] = user_config["gridsize"] 
-    configuration["limit"] = user_config["limit"] 
-    configuration["time_interval"] = user_config["time_interval"]
-    configuration["start_date"] = user_config["start_date"] 
-    configuration["end_date"] = user_config["end_date"] 
-    configuration["end_time"] = user_config["end_time"] 
-    configuration["geo_var"] = user_config["geo_var"] 
-    configuration["phy_var"] = user_config["phy_var"]  
-    configuration["phy_var_nc"] = user_config["phy_var_nc"] 
-    configuration["phy_var_hdf"] = user_config["phy_var_hdf"] 
-    configuration["pixel_range"] = user_config["pixel_range"] 
-    
-    print("Uploaded files: ", uploaded_files)
-    #print("User configuration: ", user_config)
+    configuration["gridsize"] = float(gridsize)
+    configuration["limit"] = [float(num) for num in limit.strip('][').split(', ')]
+    configuration["fill_value"] = float(fill_value)
+    configuration["time_start"] = time_start
+    configuration["time_end"] = time_end
+    configuration["time_interval"] = int(time_interval)
+    configuration["geo_var"] = geo_var.strip('][').split(', ')
+    configuration["phy_var"] = phy_var.strip('][').split(', ')
+    configuration["phy_var_nc"] = phy_var_nc.strip('][').split(', ')
+    configuration["phy_var_hdf"] = phy_var_hdf.strip('][').split(', ')
+    configuration["pixel_range"] = [int(num) for num in pixel_range.strip('][').split(', ')]
     
     user_config_html = """
     <html>
@@ -127,19 +105,18 @@ async def submit(request: Request,
         </body>
     </html>
     """
-    print(configuration)
     return HTMLResponse(content=user_config_html, status_code=200)
 
 #file upload
 @app.post("/file")
 async def submit_file(request: Request,
-                      #file: UploadFile = File(...)):
                       file: List[UploadFile]):
-    filenames.extend([f.filename for f in file])
-    uploaded_files.extend(file)
-    print("Saved config: ", configuration)
-    print("Uploaded files: ", uploaded_files)
-    print("filenames" , filenames)
+    
+    if file[0].filename != "":
+        filenames.extend([f.filename for f in file])
+        uploaded_files.extend(file)
+    else:
+        print("No files")
     
     file_upload_html =  """
     <html>
@@ -159,9 +136,71 @@ async def submit_file(request: Request,
         </body>
     </html>
     """
-    print(configuration)
+    
+    # save file to uploads folder
+    for i in range(len(filenames)):
+        file_location = os.path.join(UPLOAD_DIR, filenames[i])
+        with open(file_location, "wb+") as file_object:
+            shutil.copyfileobj(uploaded_files[i].file, file_object)   
+            
+    print("files uploaded")
+    
     return HTMLResponse(content=file_upload_html, status_code=200)
 
+# generate response
+@app.post("/generate")
+async def generate_file(request: Request):
+    print("Generating for ... ", filenames)
+    
+    # configuration read in 
+    filelist = [str(os.path.join(UPLOAD_DIR, filename)) for filename in filenames]
+    gsize = configuration["gridsize"]
+    geo_list = configuration["geo_var"]
+    phy_list = configuration["phy_var"]
+    phy_nc = configuration["phy_var_nc"]
+    phy_hdf = configuration["phy_var_hdf"]
+    limit = configuration["limit"]
+    pixel_range = configuration["pixel_range"]
+    static_file = str(os.path.join(STATIC_DIR, "LSM_ELV_QDEG_FIXED.nc"))
+    start = to_datetime(configuration["time_start"])
+    end = to_datetime(configuration["time_end"])
+    time_interval = configuration["time_interval"]
+    
+    #time processing
+    split_files = split_filetimes(filelist, start, end, int(time_interval))
+    split_files = split_filenames(split_files)
+    
+    curr = start
+    #begin processing time period by time period
+    #as bucketed in split_files
+    print(split_files)
+    #for filename in filenames:
+    #    file_location = os.path.join(UPLOAD_DIR, filename)
+    #    
+    #    L2FID = netCDF4.Dataset(file_location,'r',format='NETCDF4')
+    #    print(L2FID)
+    #    L2FID.close()
+    #    
+    #    print("opened and close")
+    
+    return
+
+# download file response
+@app.post("/download")
+async def download_file(request: Request):
+    print("Downloading ... ")
+    f = open(str(BASE_PATH)+"/testing.nc", "x")
+    
+    SAVE_FILE_PATH = os.path.join(BASE_PATH, "testing.nc")
+    print("created")
+    
+    # Return as a download
+    headers = {'Content-Disposition': 'attachment; filename="testing.nc"'}
+    return FileResponse(
+        path=SAVE_FILE_PATH,
+        media_type="application/netcdf", #	application/netcdf #text/plain
+        headers=headers
+    )
 
 app.include_router(api_router)
 

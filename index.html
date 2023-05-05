@@ -19,6 +19,25 @@
               });
             });
         </script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", (event) => {
+              document.getElementById("generateFileForm").addEventListener("submit", function (e) {
+                e.preventDefault(); // Cancel the default action, do not refresh (clears memory)
+                generateFile();
+              });
+            });
+        </script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", (event) => {
+              document.getElementById("downloadFileForm").addEventListener("submit", function (e) {
+                e.preventDefault(); // Cancel the default action, do not refresh (clears memory)
+                downloadFile();
+              });
+            });
+        </script>
+
   </head>
   <body>
     <section class="bg-black ">
@@ -55,14 +74,14 @@
                 <br><br>
 
                 <label for="start_date" class="text-base text-white">Start Date:</label> 
-                <input name="start_date" style="width:33%;" type="text" value="01-01-2020"/>
+                <input name="start_date" style="width:33%;" type="text" value="01/01/2020"/>
                 
                 <input name="start_time" style="float:right;width:33%;" type="text" value="00:00"/>
                 <label for="start_time" style="float:right;" class="text-base text-white">Start Time:</label> 
                 <br><br>
 
                 <label for="end_date" class="text-base text-white">End Date:</label> 
-                <input name="end_date" style="width:33%;" type="text" value="01-01-2020"/>
+                <input name="end_date" style="width:33%;" type="text" value="01/01/2020"/>
                 
                 <input name="end_time" style="float:right;width:33%;" type="text" value="00:59"/>
                 <label for="end_time" style="float:right;" class="text-base text-white">End Time:</label> 
@@ -73,19 +92,19 @@
                 </h2>
 
                 <label for="geo_var" class="text-base text-white">Geolocation variables:</label> 
-                <input name="geo_var" style="float:right; width:75%;" type="text" value='["latitude", "longitude"]' />
+                <input name="geo_var" style="float:right; width:75%;" type="text" value='[latitude, longitude]' />
                 <br><br>
 
                 <label for="phy_var" class="text-base text-white">Geophysical variables:</label> 
-                <input name="phy_var" style="float:right; width:75%;" type="text" value='["Sensor_Zenith", "Scattering_Angle", "Image_Optical_Depth_Land_And_Ocean", "Optical_Depth_Land_And_Ocean"]' />
+                <input name="phy_var" style="float:right; width:75%;" type="text" value='[Sensor_Zenith, Scattering_Angle, Image_Optical_Depth_Land_And_Ocean, Optical_Depth_Land_And_Ocean]' />
                 <br><br>
 
                 <label for="phy_var_nc" class="text-base text-white">Geolocation variables (nc naming):</label> 
-                <input name="phy_var_nc" style="float:right; width:70%; " type="text" value='["sensor_zenith_angle", "Scattering_Angle", "Image_Optical_Depth_Land_And_Ocean", "Optical_Depth_Land_And_Ocean"]' />
+                <input name="phy_var_nc" style="float:right; width:70%; " type="text" value='[sensor_zenith_angle, Scattering_Angle, Image_Optical_Depth_Land_And_Ocean, Optical_Depth_Land_And_Ocean]' />
                 <br><br>
 
                 <label for="phy_var_hdf" class="text-base text-white">Geophysical variables (hdf naming):</label> 
-                <input name="phy_var_hdf" style="float:right; width:70%; " type="text" value='["Sensor_Zenith", "Scattering_Angle", "Image_Optical_Depth_Land_And_Ocean","Optical_Depth_Land_And_Ocean"]' />
+                <input name="phy_var_hdf" style="float:right; width:70%; " type="text" value='[Sensor_Zenith, Scattering_Angle, Image_Optical_Depth_Land_And_Ocean,Optical_Depth_Land_And_Ocean]' />
                 <br><br>
 
                 <label for="pixel_range" class="text-base text-white">Pixel range:</label> 
@@ -143,7 +162,60 @@
                 }
              </script>
 
+             <br><br>
+             <form id="generateFileForm"></form>
+                <input type="button" value="Generate" style="width:100%; float:right;" onclick="generateFile()">
+             </form>
+
+             <script>         
+                function generateFile() {
+                   var formElement = document.getElementById('generateFileForm');
+                   var data = new FormData(formElement);
+                   console.log(data);
+
+                   fetch('/generate', {
+                           method: 'POST',
+                           body: data,
+                       })
+                       .then(response => response.text())
+                       .then(data => {
+                           document.getElementById("generateFileForm").innerHTML = data;
+                       })
+                       .catch(error => {
+                           console.error(error);
+                       });
+                }
+             </script>
+
+             <br><br>
+             <form id="downloadFileForm"></form>
+                <input type="button" value="Download" style="width:100%; float:right;" onclick="downloadFile()">
+             </form>
+
+             <script>         
+                function downloadFile() {
+                   var formElement = document.getElementById('downloadFileForm');
+                   var data = new FormData(formElement);
+                   console.log(data);
+
+                   fetch('/download', {
+                           method: 'POST',
+                           body: data,
+                       })
+                       .then(response => response.text())
+                       .then(data => {
+                           document.getElementById("downloadFileForm").innerHTML = data;
+                       })
+                       .catch(error => {
+                           console.error(error);
+                       });
+                }
+             </script>
+
             <div name="response"></div>
+        
+            
+            
         </div>
     </section>
     
